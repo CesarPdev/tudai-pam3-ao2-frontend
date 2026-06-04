@@ -1,85 +1,67 @@
-# agenda 2.0
+# Agenda 2.0 - Cliente Móvil (AO2 - PAM III)
 
-Aplicación Flutter moderna para gestionar contactos, con Provider para manejo de estado y SQLite para persistencia real.
+Aplicación Flutter moderna para gestionar contactos. Refactorizada para consumir una Web API RESTful mediante peticiones HTTP, implementando autenticación JWT e inyección automática de tokens.
 
 ## 📌 Descripción
 
-**agenda_2.0** es una app completa de gestión de contactos. Incluye autenticación de demostración, listado con búsqueda avanzada, vista de detalle, creación, edición y eliminación de contactos.  
-Utiliza **Provider**, **SQLite (sqflite)**, estilos globales y soporte total para **tema oscuro**.
+Esta aplicación representa el cliente frontend para la gestión de contactos. Evolucionando desde una persistencia local, esta versión se conecta a un backend en .NET 8 utilizando **Dio** para el manejo de red y un **Interceptor** para la gestión segura de sesiones con JSON Web Tokens (JWT). Conserva sus estilos globales y el soporte total para **tema oscuro**[cite: 21].
 
 ---
 
 ## 🚀 Funcionalidades
 
-### 🔐 Login de demostración
-- Usuario: `admin@mail.com`
-- Contraseña: `123456`
+### 🔐 Autenticación Real con JWT
+- Registro de nuevos usuarios.
+- Login de usuarios validando contra la base de datos.
+- Almacenamiento seguro del token JWT en `SharedPreferences`.
+- Inyección automática del token en los encabezados HTTP (Bearer) mediante InterceptorsWrapper.
 
-### 📇 Contactos
-- Crear contacto
-- Editar contacto (detalle reactivo, siempre actualizado)
-- Eliminar contacto con diálogo personalizado
-- Avatar generado con iniciales
-- Persistencia local con SQLite
+### 📇 Gestión de Contactos (CRUD)
+- Listado completo obtenido desde el servidor.
+- Crear nuevo contacto.
+- Editar contacto con actualización optimista (Optimistic UI) para mayor fluidez.
+- Eliminar contacto sincronizado con la base de datos real.
 
 ### 🔎 Búsqueda avanzada (en tiempo real)
-Podés buscar por:
-- Nombre  
-- Apellido  
-- Teléfono  
-- Email  
+Búsqueda reactiva en memoria por:
+- Nombre
+- Apellido
+- Teléfono
+- Email
 
-### 🗑️ Diálogo de eliminación personalizado
-- Botón **Eliminar** usando el color primario del tema
-- Botón **Cancelar** estilo oscuro
-- Ambos botones full-width y alineados verticalmente
+### 🎨 UI/UX Consistente
+- Diálogos personalizados y validaciones de formularios asíncronas.
+- Indicadores de carga (`CircularProgressIndicator`) durante las peticiones de red.
+- Manejo de errores de red traducidos a mensajes amigables para el usuario.
 
-### 🎨 Tema y estilos globales
-- AppBar estilizado
-- Botones con tema global
-- Inputs unificados
-- Colores consistentes según AppTheme
+---
 
-### 🧩 Arquitectura basada en Provider
-- `AuthProvider` para login
-- `ContactsProvider` para CRUD, búsqueda y carga desde SQLite
-- Detalle del contacto basado en ID para obtener siempre datos actualizados
+## 🛠️ Stack Tecnológico
+- **Framework:** Flutter / Dart
+- **Estado:** Provider
+- **Cliente HTTP:** Dio
+- **Almacenamiento Local:** Shared Preferences (para sesión JWT)
 
 ---
 
 ## 📁 Estructura del proyecto
-```
-
+```text
 lib/
-├─ app_theme.dart # Tema global (colores, estilos)
-├─ main.dart # Providers + AuthGate
+├─ app_theme.dart               # Tema global (colores, estilos)
+├─ main.dart                    # Providers + AuthGate
 ├─ models/
-│ └─ contact.dart # Modelo Contact
-├─ data/
-│ └─ contacts_db.dart # CRUD SQLite
+│  └─ contact.dart              # Modelo serializable para JSON
+├─ services/
+│  └─ api_client.dart           # Instancia global de Dio + Interceptor JWT
 ├─ providers/
-│ ├─ auth_provider.dart # Autenticación fake
-│ └─ contacts_provider.dart # Manejo de contactos + búsqueda
+│  ├─ auth_provider.dart        # Gestión de sesión, login y registro
+│  └─ contacts_provider.dart    # Peticiones CRUD al backend
 ├─ screens/
-│ ├─ login_screen.dart
-│ ├─ contacts_screen.dart # Lista + búsqueda + navegación
-│ ├─ contact_detail_screen.dart # Vista detallada reactiva
-│ └─ contact_form_screen.dart # Alta / edición con validaciones
+│  ├─ login_screen.dart         # Pantalla de acceso
+│  ├─ register_screen.dart      # Pantalla de creación de cuenta
+│  ├─ contacts_screen.dart      # Listado + búsqueda
+│  ├─ contact_detail_screen.dart# Vista detallada
+│  └─ contact_form_screen.dart  # Formulario alta/edición
 └─ widgets/
-│ └─ login_form.dart # Formulario
-└─ login_form.dart
-```
----
-
-## ▶️ Primeros pasos
-
-Instalar dependencias:
-
-```bash
-flutter pub get
-```
-
-Ejecutar en dispositivo o emulador:
-```bash
-flutter run
-```
+   ├─ login_form.dart
+   └─ register_form.dart
