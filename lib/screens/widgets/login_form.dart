@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../screens/register_screen.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -9,7 +10,6 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  
   final _formKey = GlobalKey<FormState>();
 
   final _emailCtrl = TextEditingController();
@@ -18,7 +18,6 @@ class _LoginFormState extends State<LoginForm> {
   final _emailFocus = FocusNode();
   final _passFocus = FocusNode();
 
-  bool _loading = false;
   bool _obscure = true;
 
   @override
@@ -49,22 +48,31 @@ class _LoginFormState extends State<LoginForm> {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _loading = true);
-    final auth = context.read<AuthProvider>(); 
-    final ok = await auth.login(_emailCtrl.text.trim(), _passCtrl.text); 
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
 
     if (!mounted) return;
-    setState(() => _loading = false); 
 
     if (!ok) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuario o contraseña incorrectos')),
+        SnackBar(
+          content: Text(auth.errorMessage ?? 'Usuario o contraseña incorrectos'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
   }
 
+  void _goToRegister() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const RegisterScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<AuthProvider>().isLoading;
+
     return Form(
       key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -106,13 +114,21 @@ class _LoginFormState extends State<LoginForm> {
           const SizedBox(height: 18),
 
           ElevatedButton(
-            onPressed: _loading ? null : _submit,
-            child: _loading
+            onPressed: isLoading ? null : _submit,
+            child: isLoading
                 ? const SizedBox(
-                    height: 20, width: 20,
+                    height: 20,
+                    width: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Text('Iniciar sesión'),
+          ),
+
+          const SizedBox(height: 12),
+
+          TextButton(
+            onPressed: isLoading ? null : _goToRegister,
+            child: const Text('¿No tenés cuenta? Registrate'),
           ),
         ],
       ),

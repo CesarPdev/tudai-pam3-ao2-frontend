@@ -24,7 +24,6 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   final _dirCtrl = TextEditingController();
 
   DateTime? _fechaNac;
-  bool _saving = false;
 
   @override
   void initState() {
@@ -55,20 +54,18 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       (v == null || v.trim().isEmpty) ? 'Ingrese $campo' : null;
 
   String? _validEmail(String? v) {
-    if (_req(v, 'el email') != null) return 'Ingrese el email';
-    if (!(v!.contains('@') || !v.contains('.'))) return 'Email inválido';
+    if (v == null || v.trim().isEmpty) return 'Ingrese el email';
+    if (!v.contains('@') || !v.contains('.')) return 'Email inválido';
     return null;
   }
 
   Future<void> _pickFecha() async {
     final now = DateTime.now();
-    final ini = DateTime(now.year - 80);
-    final fin = DateTime(now.year + 1);
     final picked = await showDatePicker(
       context: context,
       initialDate: _fechaNac ?? DateTime(now.year - 20),
-      firstDate: ini,
-      lastDate: fin,
+      firstDate: DateTime(now.year - 100),
+      lastDate: DateTime(now.year + 1),
     );
     if (picked != null) setState(() => _fechaNac = picked);
   }
@@ -77,14 +74,13 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
     FocusScope.of(context).unfocus();
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _saving = true);
+    final provider = context.read<ContactsProvider>();
+    bool ok;
 
-    // ---------------------------
-    // MODO CREAR
-    // ---------------------------
     if (widget.edit == null) {
+      // ── CREAR: id=0 como placeholder; el backend asigna el ID real. ──
       final contact = Contact(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: 0,
         nombre: _nombreCtrl.text.trim(),
         apellido: _apellidoCtrl.text.trim(),
         telefono: _telCtrl.text.trim(),
@@ -92,14 +88,10 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         direccion: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
       );
-
-      await context.read<ContactsProvider>().add(contact);
+      ok = await provider.addContact(contact);
     } else {
-      // ---------------------------
-      // MODO EDITAR
-      // ---------------------------
-      final updated = Contact(
-        id: widget.edit!.id,
+      // ── EDITAR ──
+      final updated = widget.edit!.copyWith(
         nombre: _nombreCtrl.text.trim(),
         apellido: _apellidoCtrl.text.trim(),
         telefono: _telCtrl.text.trim(),
@@ -107,17 +99,28 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         direccion: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
       );
-
-      await context.read<ContactsProvider>().update(updated);
+      ok = await provider.updateContact(updated);
     }
 
     if (!mounted) return;
-    setState(() => _saving = false);
-    Navigator.of(context).pop();
+
+    if (ok) {
+      Navigator.of(context).pop();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            provider.errorMessage ?? 'Error al guardar. Intente nuevamente.',
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isLoading = context.watch<ContactsProvider>().isLoading;
     final f = _fechaNac == null
         ? 'Sin definir'
         : DateFormat('dd/MM/yyyy').format(_fechaNac!);
@@ -127,8 +130,14 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         title: Text(widget.edit == null ? 'Nuevo contacto' : 'Editar contacto'),
         actions: [
           IconButton(
-            onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.save),
+            onPressed: isLoading ? null : _save,
+            icon: isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save),
             tooltip: 'Guardar',
           ),
         ],
@@ -194,7 +203,6 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                   controller: _dirCtrl,
                   decoration: const InputDecoration(labelText: 'Dirección'),
                   textInputAction: TextInputAction.next,
-                  validator: (v) => _req(v, 'la dirección'),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -216,13 +224,12 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: _saving ? null : _save,
-                    child: _saving
+                    onPressed: isLoading ? null : _save,
+                    child: isLoading
                         ? const SizedBox(
                             height: 20,
                             width: 20,

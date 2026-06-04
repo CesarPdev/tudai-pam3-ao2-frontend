@@ -5,7 +5,7 @@ import 'providers/auth_provider.dart';
 import 'providers/contacts_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/contacts_screen.dart';
-import 'data/contacts_db.dart';
+
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ContactsProvider(ContactsDb())),
+        ChangeNotifierProvider(create: (_) => ContactsProvider()),
       ],
       child: MaterialApp(
         title: 'Agenda 2.0',
@@ -45,8 +45,11 @@ class _AuthGateState extends State<AuthGate> {
   @override
   void initState() {
     super.initState();
+    // Capturamos el provider antes del gap async para evitar el warning
+    // use_build_context_synchronously.
+    final auth = context.read<AuthProvider>();
     Future.microtask(() async {
-      await context.read<AuthProvider>().init();
+      await auth.init();
       if (mounted) setState(() => _ready = true);
     });
   }
