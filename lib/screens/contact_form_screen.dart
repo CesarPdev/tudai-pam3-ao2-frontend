@@ -35,7 +35,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       _apellidoCtrl.text = c.apellido;
       _telCtrl.text = c.telefono;
       _emailCtrl.text = c.email;
-      _dirCtrl.text = c.direccion;
+      _dirCtrl.text = c.domicilio;
       _fechaNac = c.fechaNacimiento;
     }
   }
@@ -85,7 +85,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         apellido: _apellidoCtrl.text.trim(),
         telefono: _telCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
-        direccion: _dirCtrl.text.trim(),
+        domicilio: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
       );
       ok = await provider.addContact(contact);
@@ -96,7 +96,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         apellido: _apellidoCtrl.text.trim(),
         telefono: _telCtrl.text.trim(),
         email: _emailCtrl.text.trim(),
-        direccion: _dirCtrl.text.trim(),
+        domicilio: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
       );
       ok = await provider.updateContact(updated);

@@ -75,9 +75,8 @@ class AuthProvider extends ChangeNotifier {
     try {
       // Modificamos el mapa para que coincida exactamente con el modelo Usuario de C#
       final body = <String, dynamic>{
-        'userName': email.trim(), // Mapeamos el email al campo UserName esperado
+        'email': email.trim(), // Mapeamos el email al campo UserName esperado
         'password': password,
-        'rol': 'user', // Opcional, pero recomendado si la BD exige un rol
       };
       
       // Nota: El campo 'nombre' del formulario no se envía aquí porque 

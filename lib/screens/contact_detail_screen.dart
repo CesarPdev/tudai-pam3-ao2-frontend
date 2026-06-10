@@ -66,9 +66,9 @@ class ContactDetailScreen extends StatelessWidget {
                   _infoRow(Icons.phone, 'Teléfono', contact.telefono),
                   const SizedBox(height: 8),
                   _infoRow(Icons.email, 'Email', contact.email),
-                  if (contact.direccion.isNotEmpty) ...[
+                  if (contact.domicilio.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    _infoRow(Icons.location_on, 'Dirección', contact.direccion),
+                    _infoRow(Icons.location_on, 'Dirección', contact.domicilio),
                   ],
                   if (contact.fechaNacimiento != null) ...[
                     const SizedBox(height: 8),

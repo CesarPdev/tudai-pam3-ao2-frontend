@@ -4,9 +4,7 @@ class Contact {
   final String apellido;
   final String telefono;
   final String email;
-
-  // Campos extra (no vienen del backend pero usados en la UI local)
-  final String direccion;
+  final String domicilio;
   final DateTime? fechaNacimiento;
 
   const Contact({
@@ -15,7 +13,7 @@ class Contact {
     required this.apellido,
     required this.telefono,
     required this.email,
-    this.direccion = '',
+    this.domicilio = '',
     this.fechaNacimiento,
   });
 
@@ -32,7 +30,10 @@ class Contact {
       apellido: json['apellido'] as String? ?? '',
       telefono: json['telefono'] as String? ?? '',
       email: json['email'] as String? ?? '',
-      direccion: json['direccion'] as String? ?? '',
+      fechaNacimiento: json['fechaNacimiento'] != null
+          ? DateTime.parse(json['fechaNacimiento'] as String)
+          : null,
+      domicilio: json['domicilio'] as String? ?? '',
     );
   }
 
@@ -42,7 +43,9 @@ class Contact {
         'apellido': apellido,
         'telefono': telefono,
         'email': email,
-        if (direccion.isNotEmpty) 'direccion': direccion,
+        if (fechaNacimiento != null)
+          "fechaNacimiento": fechaNacimiento!.toIso8601String(),
+        if (domicilio.isNotEmpty) 'domicilio': domicilio,
       };
 
   /// Serializa para PUT /api/contacto/edit/{id} (incluye id).
@@ -52,7 +55,9 @@ class Contact {
         'apellido': apellido,
         'telefono': telefono,
         'email': email,
-        if (direccion.isNotEmpty) 'direccion': direccion,
+        if (fechaNacimiento != null)
+          "fechaNacimiento": fechaNacimiento!.toIso8601String(),
+        if (domicilio.isNotEmpty) 'domicilio': domicilio,
       };
 
   // ─────────────────────────────────────────────
@@ -72,7 +77,7 @@ class Contact {
     String? apellido,
     String? telefono,
     String? email,
-    String? direccion,
+    String? domicilio,
     DateTime? fechaNacimiento,
   }) {
     return Contact(
@@ -81,7 +86,7 @@ class Contact {
       apellido: apellido ?? this.apellido,
       telefono: telefono ?? this.telefono,
       email: email ?? this.email,
-      direccion: direccion ?? this.direccion,
+      domicilio: domicilio ?? this.domicilio,
       fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
     );
   }
