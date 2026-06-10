@@ -80,6 +80,10 @@ class ContactDetailScreen extends StatelessWidget {
                           '${contact.fechaNacimiento!.year}',
                     ),
                   ],
+                  if (contact.genero.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    _infoRow(Icons.person, 'Género', contact.genero),
+                  ],
                 ],
               ),
             ),

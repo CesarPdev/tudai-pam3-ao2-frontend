@@ -22,7 +22,8 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
   final _telCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _dirCtrl = TextEditingController();
-
+  
+  String? _selectedGender; // Estado para el DropdownButton
   DateTime? _fechaNac;
 
   @override
@@ -37,6 +38,11 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
       _emailCtrl.text = c.email;
       _dirCtrl.text = c.domicilio;
       _fechaNac = c.fechaNacimiento;
+      
+      // Validamos que el género previo sea una de las opciones válidas
+      if (['M', 'F', 'X'].contains(c.genero)) {
+        _selectedGender = c.genero;
+      }
     }
   }
 
@@ -87,6 +93,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         email: _emailCtrl.text.trim(),
         domicilio: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
+        genero: _selectedGender ?? '', // Agregado al crear
       );
       ok = await provider.addContact(contact);
     } else {
@@ -98,6 +105,7 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
         email: _emailCtrl.text.trim(),
         domicilio: _dirCtrl.text.trim(),
         fechaNacimiento: _fechaNac,
+        genero: _selectedGender ?? '', // Usa el valor del dropdown
       );
       ok = await provider.updateContact(updated);
     }
@@ -203,6 +211,22 @@ class _ContactFormScreenState extends State<ContactFormScreen> {
                   controller: _dirCtrl,
                   decoration: const InputDecoration(labelText: 'Dirección'),
                   textInputAction: TextInputAction.next,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  value: _selectedGender,
+                  decoration: const InputDecoration(labelText: 'Género'),
+                  items: ['M', 'F', 'X'].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedGender = newValue;
+                    });
+                  },
                 ),
                 const SizedBox(height: 12),
                 Row(

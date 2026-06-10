@@ -5,6 +5,7 @@ class Contact {
   final String telefono;
   final String email;
   final String domicilio;
+  final String genero;
   final DateTime? fechaNacimiento;
 
   const Contact({
@@ -14,6 +15,7 @@ class Contact {
     required this.telefono,
     required this.email,
     this.domicilio = '',
+    this.genero = '',
     this.fechaNacimiento,
   });
 
@@ -34,6 +36,7 @@ class Contact {
           ? DateTime.parse(json['fechaNacimiento'] as String)
           : null,
       domicilio: json['domicilio'] as String? ?? '',
+      genero: json['genero'] as String? ?? '',
     );
   }
 
@@ -43,9 +46,10 @@ class Contact {
         'apellido': apellido,
         'telefono': telefono,
         'email': email,
+        if (domicilio.isNotEmpty) 'domicilio': domicilio,
         if (fechaNacimiento != null)
           "fechaNacimiento": fechaNacimiento!.toIso8601String(),
-        if (domicilio.isNotEmpty) 'domicilio': domicilio,
+        if (genero.isNotEmpty) 'genero': genero,
       };
 
   /// Serializa para PUT /api/contacto/edit/{id} (incluye id).
@@ -58,6 +62,7 @@ class Contact {
         if (fechaNacimiento != null)
           "fechaNacimiento": fechaNacimiento!.toIso8601String(),
         if (domicilio.isNotEmpty) 'domicilio': domicilio,
+        if (genero.isNotEmpty) 'genero': genero,
       };
 
   // ─────────────────────────────────────────────
@@ -78,6 +83,7 @@ class Contact {
     String? telefono,
     String? email,
     String? domicilio,
+    String? genero,
     DateTime? fechaNacimiento,
   }) {
     return Contact(
@@ -87,6 +93,7 @@ class Contact {
       telefono: telefono ?? this.telefono,
       email: email ?? this.email,
       domicilio: domicilio ?? this.domicilio,
+      genero: genero ?? this.genero,
       fechaNacimiento: fechaNacimiento ?? this.fechaNacimiento,
     );
   }
